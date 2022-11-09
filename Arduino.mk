@@ -63,7 +63,7 @@
 #
 # On Windows declare this environmental variables using the windows
 # configuration options or Cygwin .bashrc. Control Panel > System > Advanced system settings
-# The paths must use Unix style forward slash and not have any spaces 
+# The paths must use Unix style forward slash and not have any spaces
 # or escape charactors. One must use a symbolic link if the path does
 # contain spaces.
 #
@@ -880,12 +880,12 @@ endif
 ########################################################################
 # Local sources
 
-LOCAL_C_SRCS    ?= $(wildcard *.c)
-LOCAL_CPP_SRCS  ?= $(wildcard *.cpp)
-LOCAL_CC_SRCS   ?= $(wildcard *.cc)
-LOCAL_PDE_SRCS  ?= $(wildcard *.pde)
-LOCAL_INO_SRCS  ?= $(wildcard *.ino)
-LOCAL_AS_SRCS   ?= $(wildcard *.S)
+LOCAL_C_SRCS    ?= $(wildcard $(TARGET)/*.c)
+LOCAL_CPP_SRCS  ?= $(wildcard $(TARGET)/*.cpp)
+LOCAL_CC_SRCS   ?= $(wildcard $(TARGET)/*.cc)
+LOCAL_PDE_SRCS  ?= $(wildcard $(TARGET)/*.pde)
+LOCAL_INO_SRCS  ?= $(wildcard $(TARGET)/*.ino)
+LOCAL_AS_SRCS   ?= $(wildcard $(TARGET)/*.S)
 LOCAL_SRCS      = $(LOCAL_C_SRCS)   $(LOCAL_CPP_SRCS) \
 		$(LOCAL_CC_SRCS)   $(LOCAL_PDE_SRCS) \
 		$(LOCAL_INO_SRCS) $(LOCAL_AS_SRCS)
