@@ -1174,7 +1174,7 @@ endif
 # Using += instead of =, so that CPPFLAGS can be set per sketch level
 CPPFLAGS      += -$(MCU_FLAG_NAME)=$(MCU) -DF_CPU=$(F_CPU) -DARDUINO=$(ARDUINO_VERSION) $(ARDUINO_ARCH_FLAG) \
         -I$(ARDUINO_CORE_PATH) -I$(ARDUINO_CORE_PATH)/api -I$(ARDUINO_VAR_PATH)/$(VARIANT) \
-        -I$(ARDUINO_CONF_DIR) $(SYS_INCLUDES) $(PLATFORM_INCLUDES) $(USER_INCLUDES) -Wall -ffunction-sections \
+        -I$(ARDUINO_CONF_DIR) $(PROJECT_INCLUDES) $(SYS_INCLUDES) $(PLATFORM_INCLUDES) $(USER_INCLUDES) -Wall -ffunction-sections \
         -fdata-sections
 
 # PROG_TYPES_COMPAT is enabled by default for compatibility with the Arduino IDE.
@@ -1689,6 +1689,8 @@ endif
 
 $(CORE_LIB):	$(CORE_OBJS) $(LIB_OBJS) $(PLATFORM_LIB_OBJS) $(USER_LIB_OBJS)
 		$(AR) rcs $@ $(CORE_OBJS) $(LIB_OBJS) $(PLATFORM_LIB_OBJS) $(USER_LIB_OBJS)
+
+# I$(ARDUINO_CONF_DIR) $(PROJECT_INCLUDES)
 
 error_on_caterina:
 		$(ERROR_ON_CATERINA)
