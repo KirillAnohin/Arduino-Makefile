@@ -880,12 +880,12 @@ endif
 ########################################################################
 # Local sources
 
-LOCAL_C_SRCS    ?= $(wildcard $(TARGET)/*.c)
-LOCAL_CPP_SRCS  ?= $(wildcard $(TARGET)/*.cpp)
-LOCAL_CC_SRCS   ?= $(wildcard $(TARGET)/*.cc)
-LOCAL_PDE_SRCS  ?= $(wildcard $(TARGET)/*.pde)
-LOCAL_INO_SRCS  ?= $(wildcard $(TARGET)/*.ino)
-LOCAL_AS_SRCS   ?= $(wildcard $(TARGET)/*.S)
+LOCAL_C_SRCS    ?= $(wildcard *.c)
+LOCAL_CPP_SRCS  ?= $(wildcard *.cpp)
+LOCAL_CC_SRCS   ?= $(wildcard *.cc)
+LOCAL_PDE_SRCS  ?= $(wildcard *.pde)
+LOCAL_INO_SRCS  ?= $(wildcard *.ino)
+LOCAL_AS_SRCS   ?= $(wildcard *.S)
 LOCAL_SRCS      = $(LOCAL_C_SRCS)   $(LOCAL_CPP_SRCS) \
 		$(LOCAL_CC_SRCS)   $(LOCAL_PDE_SRCS) \
 		$(LOCAL_INO_SRCS) $(LOCAL_AS_SRCS)
@@ -980,6 +980,14 @@ ifndef ARDUINO_LIBS
     ARDUINO_LIBS += $(filter $(notdir $(wildcard $(USER_LIB_PATH)/*)), \
         $(shell sed -ne 's/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p' $(LOCAL_SRCS)))
     ARDUINO_LIBS += $(filter $(notdir $(wildcard $(ARDUINO_PLATFORM_LIB_PATH)/*)), \
+        $(shell sed -ne 's/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p' $(LOCAL_SRCS)))
+endif
+
+########################################################################
+# Determine ARDUINO_CONF automatically
+
+ifndef ARDUINO_CONF
+    ARDUINO_CONF += $(filter $(basename $(notdir $(wildcard $(ARDUINO_CONF_DIR)/*))), \
         $(shell sed -ne 's/^ *\# *include *[<\"]\(.*\)\.h[>\"]/\1/p' $(LOCAL_SRCS)))
 endif
 
@@ -1087,6 +1095,9 @@ get_library_files  = $(if $(and $(wildcard $(1)/src), $(wildcard $(1)/library.pr
 USER_LIBS      := $(sort $(wildcard $(patsubst %,$(USER_LIB_PATH)/%,$(ARDUINO_LIBS))))
 USER_LIB_NAMES := $(patsubst $(USER_LIB_PATH)/%,%,$(USER_LIBS))
 
+USER_CONF       := $(sort $(patsubst %,$(ARDUINO_CONF_PATH)/%,$(ARDUINO_CONF)))
+USER_CONF_NAMES := $(patsubst $(ARDUINO_CONF_PATH)/%,%,$(USER_CONF))
+
 # Let user libraries override system ones.
 SYS_LIBS       := $(sort $(wildcard $(patsubst %,$(ARDUINO_LIB_PATH)/%,$(filter-out $(USER_LIB_NAMES),$(ARDUINO_LIBS)))))
 SYS_LIB_NAMES  := $(patsubst $(ARDUINO_LIB_PATH)/%,%,$(SYS_LIBS))
@@ -1095,7 +1106,6 @@ ifdef ARDUINO_PLATFORM_LIB_PATH
     PLATFORM_LIBS       := $(sort $(wildcard $(patsubst %,$(ARDUINO_PLATFORM_LIB_PATH)/%,$(filter-out $(USER_LIB_NAMES),$(ARDUINO_LIBS)))))
     PLATFORM_LIB_NAMES  := $(patsubst $(ARDUINO_PLATFORM_LIB_PATH)/%,%,$(PLATFORM_LIBS))
 endif
-
 
 # Error here if any are missing.
 LIBS_NOT_FOUND = $(filter-out $(USER_LIB_NAMES) $(SYS_LIB_NAMES) $(PLATFORM_LIB_NAMES),$(ARDUINO_LIBS))
@@ -1164,7 +1174,7 @@ endif
 # Using += instead of =, so that CPPFLAGS can be set per sketch level
 CPPFLAGS      += -$(MCU_FLAG_NAME)=$(MCU) -DF_CPU=$(F_CPU) -DARDUINO=$(ARDUINO_VERSION) $(ARDUINO_ARCH_FLAG) \
         -I$(ARDUINO_CORE_PATH) -I$(ARDUINO_CORE_PATH)/api -I$(ARDUINO_VAR_PATH)/$(VARIANT) \
-        $(SYS_INCLUDES) $(PLATFORM_INCLUDES) $(USER_INCLUDES) -Wall -ffunction-sections \
+        -I$(ARDUINO_CONF_DIR) $(SYS_INCLUDES) $(PLATFORM_INCLUDES) $(USER_INCLUDES) -Wall -ffunction-sections \
         -fdata-sections
 
 # PROG_TYPES_COMPAT is enabled by default for compatibility with the Arduino IDE.
@@ -1310,6 +1320,10 @@ endif
 
 ifneq (,$(strip $(USER_LIB_NAMES)))
     $(foreach lib,$(USER_LIB_NAMES),$(call show_config_info,  $(lib),[USER]))
+endif
+
+ifneq (,$(strip $(USER_CONF_NAMES)))
+    $(foreach lib,$(USER_CONF_NAMES),$(call show_config_info,  $(lib),[USER]))
 endif
 
 ifneq (,$(strip $(SYS_LIB_NAMES)))
